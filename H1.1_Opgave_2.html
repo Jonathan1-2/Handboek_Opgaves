@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opdracht: Meerkeuze</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --lms-bg: #F0F2F5;
+    --lms-surface: #FFFFFF;
+    --lms-green: #2E7D32;
+    --lms-green-mid: #43A047;
+    --lms-green-light: #E8F5E9;
+    --lms-text: #1A1A1A;
+    --lms-text-muted: #5F6368;
+    --lms-border: #DADCE0;
+    --lms-radius: 8px;
+    --lms-correct: #2E7D32;
+    --lms-correct-bg: #E8F5E9;
+    --lms-error: #C62828;
+    --lms-error-bg: #FFEBEE;
+  }
+
+  html, body {
+    background: transparent;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--lms-text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .exercise {
+    background: var(--lms-surface);
+    border: 1px solid var(--lms-border);
+    border-radius: var(--lms-radius);
+    padding: 1.75rem 2rem;
+    margin: 0;
+  }
+
+  .exercise-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--lms-text);
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--lms-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exercise-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--lms-green);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--lms-border);
+    border-radius: var(--lms-radius);
+    background: var(--lms-bg);
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .option:hover {
+    border-color: var(--lms-green-mid);
+    background: var(--lms-green-light);
+  }
+
+  .option.selected {
+    border-color: var(--lms-green-mid);
+    background: var(--lms-green-light);
+    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.15);
+  }
+
+  .option.correct {
+    border-color: var(--lms-correct);
+    background: var(--lms-correct-bg);
+    cursor: default;
+  }
+
+  .option.incorrect {
+    border-color: var(--lms-error);
+    background: var(--lms-error-bg);
+    cursor: default;
+  }
+
+  .option.disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  /* Custom radio circle */
+  .radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--lms-border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.12s, background 0.12s;
+    background: #fff;
+  }
+
+  .option.selected .radio {
+    border-color: var(--lms-green-mid);
+  }
+
+  .option.selected .radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lms-green-mid);
+  }
+
+  .option.correct .radio {
+    border-color: var(--lms-correct);
+    background: var(--lms-correct);
+  }
+
+  .option.correct .radio::after {
+    content: '✓';
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .option.incorrect .radio {
+    border-color: var(--lms-error);
+    background: var(--lms-error);
+  }
+
+  .option.incorrect .radio::after {
+    content: '✕';
+    font-size: 10px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .option-label {
+    font-size: 14px;
+    color: var(--lms-text);
+    line-height: 1.5;
+  }
+
+  .option.correct .option-label { color: var(--lms-correct); font-weight: 500; }
+  .option.incorrect .option-label { color: var(--lms-error); font-weight: 500; }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s, opacity 0.12s;
+  }
+
+  .btn-primary {
+    background: var(--lms-green);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1B5E20; }
+  .btn-primary:disabled { background: #A5D6A7; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--lms-text-muted);
+    border: 1px solid var(--lms-border);
+  }
+  .btn-secondary:hover { background: #F1F3F4; color: var(--lms-text); }
+
+  .feedback {
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border-radius: var(--lms-radius);
+    font-size: 13.5px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback.success { display: flex; background: var(--lms-correct-bg); color: var(--lms-correct); border: 1px solid #A5D6A7; }
+  .feedback.wrong    { display: flex; background: var(--lms-error-bg); color: var(--lms-error); border: 1px solid #EF9A9A; }
+
+  .feedback-icon { font-size: 15px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="exercise">
+
+  <div class="exercise-title">Wat vul je in als een medewerker een boete van € 150 heeft ontvangen?</div>
+
+  <div class="options" id="options">
+    <div class="option" data-correct="false">
+      <div class="radio"></div>
+      <span class="option-label">Bij Looncodes: 150 op de code "5297 inhouding boete"</span>
+    </div>
+    <div class="option" data-correct="false">
+      <div class="radio"></div>
+      <span class="option-label">Bij urencodes: -150 op de code "5297 inhouding boete"</span>
+    </div>
+    <div class="option" data-correct="false">
+      <div class="radio"></div>
+      <span class="option-label">Bij urencodes: 150 op de code "5297 inhouding boete"</span>
+    </div>
+    <div class="option" data-correct="true">
+      <div class="radio"></div>
+      <span class="option-label">Bij Looncodes: -150 op de code "5297 inhouding boete"</span>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnCheck" disabled>Controleer</button>
+    <button class="btn btn-secondary" id="btnReset">Opnieuw</button>
+  </div>
+
+  <div class="feedback" id="feedback">
+    <span class="feedback-icon" id="feedbackIcon"></span>
+    <span id="feedbackText"></span>
+  </div>
+
+</div>
+
+<script>
+  const options = document.querySelectorAll('.option');
+  const btnCheck = document.getElementById('btnCheck');
+  const btnReset = document.getElementById('btnReset');
+  const feedback = document.getElementById('feedback');
+
+  let selected = null;
+  let checked = false;
+
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      if (checked) return;
+      if (selected) selected.classList.remove('selected');
+      selected = option;
+      option.classList.add('selected');
+      btnCheck.disabled = false;
+    });
+  });
+
+  btnCheck.addEventListener('click', () => {
+    if (!selected || checked) return;
+    checked = true;
+    btnCheck.disabled = true;
+
+    const isCorrect = selected.dataset.correct === 'true';
+
+    options.forEach(option => {
+      if (option === selected) {
+        option.classList.remove('selected');
+        option.classList.add(isCorrect ? 'correct' : 'incorrect');
+      } else {
+        option.classList.add('disabled');
+      }
+    });
+
+    feedback.className = 'feedback';
+    if (isCorrect) {
+      feedback.classList.add('success');
+      document.getElementById('feedbackIcon').textContent = '✓';
+      document.getElementById('feedbackText').textContent = 'Correct! Een boete is een inhouding, dus het bedrag is negatief en valt onder urencodes.';
+    } else {
+      feedback.classList.add('wrong');
+      document.getElementById('feedbackIcon').textContent = '✕';
+      document.getElementById('feedbackText').textContent = 'Niet correct. Het juiste antwoord is: bij urencodes: -150 op de code "5297 inhouding boete".';
+    }
+  });
+
+  btnReset.addEventListener('click', () => {
+    checked = false;
+    selected = null;
+    options.forEach(option => {
+      option.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+    });
+    btnCheck.disabled = true;
+    feedback.className = 'feedback';
+  });
+</script>
+</body>
+</html>
