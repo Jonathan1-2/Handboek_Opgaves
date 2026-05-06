@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opdracht: Uitdienst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --lms-bg: #F0F2F5;
+    --lms-surface: #FFFFFF;
+    --lms-green: #2E7D32;
+    --lms-green-mid: #43A047;
+    --lms-green-light: #E8F5E9;
+    --lms-text: #1A1A1A;
+    --lms-text-muted: #5F6368;
+    --lms-border: #DADCE0;
+    --lms-radius: 8px;
+    --lms-correct: #2E7D32;
+    --lms-correct-bg: #E8F5E9;
+    --lms-error: #C62828;
+    --lms-error-bg: #FFEBEE;
+  }
+
+  html, body {
+    background: transparent;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--lms-text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .exercise {
+    background: var(--lms-surface);
+    border: 1px solid var(--lms-border);
+    border-radius: var(--lms-radius);
+    padding: 1.75rem 2rem;
+    margin: 0;
+  }
+
+  .exercise-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--lms-text);
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--lms-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exercise-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--lms-green);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .passage {
+    font-size: 15px;
+    line-height: 2.1;
+    color: var(--lms-text);
+    margin-bottom: 1.5rem;
+  }
+
+  .fill-input {
+    display: inline-block;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 4px;
+    border: 1.5px solid var(--lms-border);
+    background: #F1F3F4;
+    vertical-align: middle;
+    margin: 0 3px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--lms-text);
+    outline: none;
+    transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+    text-align: center;
+    width: 140px;
+  }
+
+  #input-1, #input-4 { width: 110px; }
+  #input-2 { width: 175px; }
+  #input-3 { width: 110px; }
+
+  .fill-input::placeholder {
+    color: #BDBDBD;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+  }
+
+  .fill-input:focus {
+    border-color: var(--lms-green-mid);
+    background: var(--lms-green-light);
+    box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.15);
+  }
+
+  .fill-input:not(:placeholder-shown) {
+    border-color: var(--lms-green-mid);
+    background: var(--lms-green-light);
+    color: var(--lms-green);
+  }
+
+  .fill-input.correct {
+    border-color: var(--lms-correct);
+    background: var(--lms-correct-bg);
+    color: var(--lms-correct);
+    pointer-events: none;
+  }
+
+  .fill-input.incorrect {
+    border-color: var(--lms-error);
+    background: var(--lms-error-bg);
+    color: var(--lms-error);
+    pointer-events: none;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.12s, opacity 0.12s;
+  }
+
+  .btn-primary {
+    background: var(--lms-green);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1B5E20; }
+  .btn-primary:disabled { background: #A5D6A7; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--lms-text-muted);
+    border: 1px solid var(--lms-border);
+  }
+  .btn-secondary:hover { background: #F1F3F4; color: var(--lms-text); }
+
+  .feedback {
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border-radius: var(--lms-radius);
+    font-size: 13.5px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback.success { display: flex; background: var(--lms-correct-bg); color: var(--lms-correct); border: 1px solid #A5D6A7; }
+  .feedback.partial  { display: flex; background: #FFF8E1; color: #E65100; border: 1px solid #FFD54F; }
+  .feedback.wrong    { display: flex; background: var(--lms-error-bg); color: var(--lms-error); border: 1px solid #EF9A9A; }
+
+  .feedback-icon { font-size: 15px; flex-shrink: 0; }
+
+  .score {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--lms-text-muted);
+    display: none;
+  }
+  .score strong { color: var(--lms-text); }
+</style>
+</head>
+<body>
+
+<div class="exercise">
+
+  <div class="exercise-title">Vul de juiste woorden in</div>
+
+  <p class="passage">
+    Wanneer ik een werknemer die op 1 oktober uitdienst is gemeld dan moet ik zijn vergoedingen en uren in
+    <input class="fill-input" data-answer="september" id="input-1" type="text" placeholder="···" autocomplete="off" spellcheck="false">
+    in NMBRS invullen. Afhankelijk van de rede van het beëindigen van het dienstverband moet de werkgever een
+    <input class="fill-input" data-answer="transitievergoeding" id="input-2" type="text" placeholder="···" autocomplete="off" spellcheck="false">
+    uitbetalen. Wanneer ik de medewerker uitdienst heb gemeld, en de bedragen zijn ingevuld moet ik nog de
+    <input class="fill-input" data-answer="loonstrook" id="input-3" type="text" placeholder="···" autocomplete="off" spellcheck="false">
+    nagaan om te zien of alles correct is doorgevoerd. De laatste loonstrook moet die van
+    <input class="fill-input" data-answer="september" id="input-4" type="text" placeholder="···" autocomplete="off" spellcheck="false">
+    zijn.
+  </p>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btnCheck" disabled>Controleer</button>
+    <button class="btn btn-secondary" id="btnReset">Opnieuw</button>
+    <div class="score" id="score">Score: <strong id="scoreText">0/4</strong></div>
+  </div>
+
+  <div class="feedback" id="feedback">
+    <span class="feedback-icon" id="feedbackIcon"></span>
+    <span id="feedbackText"></span>
+  </div>
+
+</div>
+
+<script>
+  const inputs = document.querySelectorAll('.fill-input');
+  const btnCheck = document.getElementById('btnCheck');
+  const btnReset = document.getElementById('btnReset');
+  const feedback = document.getElementById('feedback');
+  const score = document.getElementById('score');
+  const scoreText = document.getElementById('scoreText');
+
+  function updateCheck() {
+    btnCheck.disabled = [...inputs].some(i => i.value.trim() === '');
+  }
+
+  inputs.forEach(input => {
+    input.addEventListener('input', updateCheck);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !btnCheck.disabled) btnCheck.click();
+    });
+  });
+
+  btnCheck.addEventListener('click', () => {
+    let correct = 0;
+    inputs.forEach(input => {
+      const userVal = input.value.trim().toLowerCase();
+      const answer = input.dataset.answer.toLowerCase();
+      if (userVal === answer) {
+        input.classList.add('correct');
+        input.classList.remove('incorrect');
+        correct++;
+      } else {
+        input.classList.add('incorrect');
+        input.classList.remove('correct');
+      }
+    });
+
+    btnCheck.disabled = true;
+    const total = inputs.length;
+    scoreText.textContent = correct + '/' + total;
+    score.style.display = 'block';
+    feedback.className = 'feedback';
+
+    if (correct === total) {
+      feedback.classList.add('success');
+      document.getElementById('feedbackIcon').textContent = '✓';
+      document.getElementById('feedbackText').textContent = 'Uitstekend! Alle antwoorden zijn correct.';
+    } else if (correct > 0) {
+      feedback.classList.add('partial');
+      document.getElementById('feedbackIcon').textContent = '◎';
+      document.getElementById('feedbackText').textContent = correct + ' van de ' + total + ' antwoorden correct. Bekijk de rood gemarkeerde velden.';
+    } else {
+      feedback.classList.add('wrong');
+      document.getElementById('feedbackIcon').textContent = '✕';
+      document.getElementById('feedbackText').textContent = 'Geen enkel antwoord is correct. Probeer het opnieuw.';
+    }
+  });
+
+  btnReset.addEventListener('click', () => {
+    inputs.forEach(input => {
+      input.value = '';
+      input.classList.remove('correct', 'incorrect');
+      input.disabled = false;
+    });
+    btnCheck.disabled = true;
+    feedback.className = 'feedback';
+    score.style.display = 'none';
+  });
+</script>
+</body>
+</html>
